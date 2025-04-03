@@ -2,7 +2,33 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  @apply bg-gray-50 text-gray-900 font-sans;
-}
+@layer components {
 
+  .theme-button {
+    @apply transition-colors duration-300;
+  }
+
+  .theme-button-light {
+    @apply bg-white text-indigo-900;
+  }
+
+  .dark .theme-button-light {
+    @apply bg-indigo-600 text-white;
+  }
+
+  .theme-button-blue {
+    @apply bg-blue-600 text-white hover:bg-blue-700;
+  }
+
+  .dark .theme-button-blue {
+    @apply hover:bg-blue-500;
+  }
+
+  .theme-app {
+    @apply bg-white text-gray-900 transition-colors duration-300;
+  }
+
+  .dark .theme-app {
+    @apply bg-gray-900 text-gray-200;
+  }
+}
