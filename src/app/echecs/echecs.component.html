@@ -1,0 +1,48 @@
+<!-- chess-ai.component.html -->
+<div class="chess-container">
+  <div id="board" class="board">
+    <div class="captured-pieces captured-top">
+      <div class="pieces">
+        <span *ngFor="let piece of capturedBlack">{{ piece }}</span>
+      </div>
+    </div>
+
+    <div class="chessboard">
+      <div
+        *ngFor="let row of board; let rowIndex = index"
+        class="row"
+      >
+        <div
+          *ngFor="let cell of row; let colIndex = index"
+          class="cell"
+          [class.dark]="(rowIndex + colIndex) % 2 === 1"
+          [class.light]="(rowIndex + colIndex) % 2 === 0"
+          (click)="onCellClick(rowIndex, colIndex)"
+        >
+          {{ cell }}
+        </div>
+      </div>
+    </div>
+
+    <div class="captured-pieces captured-bottom">
+      <div class="pieces">
+        <span *ngFor="let piece of capturedWhite">{{ piece }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <label for="difficulty">Difficulté :</label>
+    <select id="difficulty" (change)="onDifficultyChange()">
+      <option value="3">Facile</option>
+      <option value="6">Moyen</option>
+      <option value="10">Difficile</option>
+    </select>
+    <button (click)="resetGame()">Nouvelle partie</button>
+  </div>
+
+  <div class="controls">
+    <p>Joueur actuel : {{ currentPlayer }}</p>
+    <button (click)="initializeBoard()">Réinitialiser</button>
+  </div>
+</div>

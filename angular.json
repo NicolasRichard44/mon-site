@@ -26,10 +26,12 @@
               "src/assets"
             ],
             "styles": [
+              "node_modules/chessboardjs/www/css/chessboard.css",
               "src/styles.css"
             ],
-            "scripts": [],
-            "browser": "src/main.ts"
+            "scripts": ["node_modules/chessboardjs/www/js/chessboard.js"],
+            "browser": "src/main.ts",
+            "webWorkerTsConfig": "tsconfig.worker.json"
           },
           "configurations": {
             "production": {
@@ -94,7 +96,8 @@
             "styles": [
               "src/styles.css"
             ],
-            "scripts": []
+            "scripts": [],
+            "webWorkerTsConfig": "tsconfig.worker.json"
           }
         }
       }

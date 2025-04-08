@@ -1,11 +1,13 @@
 import { Component } from '@angular/core';
-import { HeaderComponent } from './header/header.component';
-import { HeroComponent } from './hero/hero.component';
 import { AboutComponent } from './about/about.component';
-import { ProjectsComponent } from './projects/projects.component';
 import { ContactComponent } from './contact/contact.component';
 import { FooterComponent } from './footer/footer.component';
+import { HeaderComponent } from './header/header.component';
+import { HeroComponent } from './hero/hero.component';
+import { ProjectsComponent } from './projects/projects.component';
 import { ThemeToggleComponent } from './theme-toggle/theme-toggle.component';
+
+
 
 @Component({
   selector: 'app-root',
@@ -17,7 +19,8 @@ import { ThemeToggleComponent } from './theme-toggle/theme-toggle.component';
     ProjectsComponent,
     ContactComponent,
     FooterComponent,
-    ThemeToggleComponent
+    ThemeToggleComponent,
+
   ],
   templateUrl: './app.component.html'
 })
