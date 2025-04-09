@@ -1,6 +1,24 @@
 <!-- chess-ai.component.html -->
-<div class="chess-container">
-  <div id="board" class="board">
+<div *ngIf="!hasSelectedColor" class="overlay">
+  <div class="color-selection">
+    <h2>Échecs</h2>
+    <p>Choisissez votre couleur pour commencer la partie</p>
+    <button (click)="startGame('white')">Jouer les Blancs</button>
+    <button (click)="startGame('black')">Jouer les Noirs</button>
+  </div>
+</div>
+
+<div *ngIf="hasSelectedColor" class="game-container">
+  <div class="move-history">
+    <h3>Historique des coups</h3>
+    <div class="moves">
+      <div *ngFor="let move of moveHistory; let i = index">
+        {{i + 1}}. {{move}}
+      </div>
+    </div>
+  </div>
+
+  <div class="board-container">
     <div class="captured-pieces captured-top">
       <div class="pieces">
         <span *ngFor="let piece of capturedBlack">{{ piece }}</span>
@@ -8,10 +26,7 @@
     </div>
 
     <div class="chessboard">
-      <div
-        *ngFor="let row of board; let rowIndex = index"
-        class="row"
-      >
+      <div *ngFor="let row of board; let rowIndex = index" class="row">
         <div
           *ngFor="let cell of row; let colIndex = index"
           class="cell"
@@ -32,17 +47,7 @@
   </div>
 
   <div class="controls">
-    <label for="difficulty">Difficulté :</label>
-    <select id="difficulty" (change)="onDifficultyChange()">
-      <option value="3">Facile</option>
-      <option value="6">Moyen</option>
-      <option value="10">Difficile</option>
-    </select>
+    <p>Tour : {{ currentPlayer === 'white' ? 'Blancs' : 'Noirs' }}</p>
     <button (click)="resetGame()">Nouvelle partie</button>
-  </div>
-
-  <div class="controls">
-    <p>Joueur actuel : {{ currentPlayer }}</p>
-    <button (click)="initializeBoard()">Réinitialiser</button>
   </div>
 </div>
