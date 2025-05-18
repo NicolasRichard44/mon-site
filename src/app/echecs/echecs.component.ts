@@ -1,666 +1,371 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-echecs',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './echecs.component.html',
   styleUrls: ['./echecs.component.css']
 })
-export class EchecsComponent {
-  board: string[][] = [];
-  selectedPiece: { row: number; col: number } | null = null;
-  currentPlayer: 'white' | 'black' = 'white';
-  capturedWhite: string[] = [];
-  capturedBlack: string[] = [];
-  playerColor: 'white' | 'black' = 'white';
-  hasSelectedColor = false;
+export class EchecsComponent implements OnInit, AfterViewInit {  gameStarted = false;
+  gameOver = false;
+  selectedDifficulty = 'medium'; // Par défaut
+  selectedColor = 'white'; // Par défaut, le joueur joue les blancs
+  game: any;
+  position: string = 'start';
+  board: any;
   moveHistory: string[] = [];
-  hasKingMoved = { white: false, black: false };
-  hasRookMoved = {
-    white: { kingside: false, queenside: false },
-    black: { kingside: false, queenside: false }
-  };
-  lastMove: { piece: string; from: { row: number; col: number }; to: { row: number; col: number } } | null = null;
+  capturedWhitePieces: string[] = []; // Pièces blanches capturées
+  capturedBlackPieces: string[] = []; // Pièces noires capturées
+  currentPlayerTurn = 'white';
+  message = '';
 
-  private readonly PIECE_VALUES: { [key: string]: number } = {
-    '♙': 1,  // White pawn
-    '♖': 5,  // White rook
-    '♘': 3,  // White knight
-    '♗': 3,  // White bishop
-    '♕': 9,  // White queen
-    '♔': 100, // White king
-    '♟': -1,  // Black pawn
-    '♜': -5,  // Black rook
-    '♞': -3,  // Black knight
-    '♝': -3,  // Black bishop
-    '♛': -9,  // Black queen
-    '♚': -100 // Black king
-  };
+  // Options de difficulté
+  difficultyOptions = [
+    { value: 'easy', label: 'Facile' },
+    { value: 'medium', label: 'Moyen' },
+    { value: 'hard', label: 'Difficile' }
+  ];
+  
+  // Options de couleur
+  colorOptions = [
+    { value: 'white', label: 'Blancs' },
+    { value: 'black', label: 'Noirs' }
+  ];
 
-  private readonly POSITION_BONUS = {
-    PAWN: [
-      [0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0],
-      [0.5,  0.5,  0.5,  0.5,  0.5,  0.5,  0.5,  0.5],
-      [0.1,  0.1,  0.2,  0.3,  0.3,  0.2,  0.1,  0.1],
-      [0.05, 0.05, 0.1,  0.25, 0.25, 0.1,  0.05, 0.05],
-      [0.0,  0.0,  0.0,  0.2,  0.2,  0.0,  0.0,  0.0],
-      [0.05, -0.05, -0.1, 0.0, 0.0, -0.1, -0.05, 0.05],
-      [0.05, 0.1,  0.1,  -0.2, -0.2, 0.1,  0.1,  0.05],
-      [0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0]
-    ],
-    KNIGHT: [
-      [-0.5, -0.4, -0.3, -0.3, -0.3, -0.3, -0.4, -0.5],
-      [-0.4, -0.2, 0.0,  0.0,  0.0,  0.0,  -0.2, -0.4],
-      [-0.3, 0.0,  0.1,  0.15, 0.15, 0.1,  0.0,  -0.3],
-      [-0.3, 0.05, 0.15, 0.2,  0.2,  0.15, 0.05, -0.3],
-      [-0.3, 0.0,  0.15, 0.2,  0.2,  0.15, 0.0,  -0.3],
-      [-0.3, 0.05, 0.1,  0.15, 0.15, 0.1,  0.05, -0.3],
-      [-0.4, -0.2, 0.0,  0.05, 0.05, 0.0,  -0.2, -0.4],
-      [-0.5, -0.4, -0.3, -0.3, -0.3, -0.3, -0.4, -0.5]
-    ]
-  };
-
-  constructor() {
-    this.initializeBoard();
+  constructor() { }
+  ngOnInit(): void {
+    this.initializeGame();
   }
-
-  initializeBoard() {
-    // Initialiser un plateau vide
-    this.board = Array(8)
-      .fill(null)
-      .map(() => Array(8).fill(''));
-
-    // Placer les pièces (simplifié)
-    this.board[0] = ['♜', '♞', '♝', '♛', '♚', '♝', '♞', '♜'];
-    this.board[1] = Array(8).fill('♟');
-    this.board[6] = Array(8).fill('♙');
-    this.board[7] = ['♖', '♘', '♗', '♕', '♔', '♗', '♘', '♖'];
-
-    console.log('Board initialized:', this.board);
+    ngAfterViewInit(): void {
+    // Charger dynamiquement les bibliothèques nécessaires
+    this.loadDependencies().then(() => {
+      console.log('Toutes les dépendances sont chargées');
+    }).catch(() => {
+      this.message = 'Impossible de charger les bibliothèques d\'échecs';
+    });
   }
-
-  onCellClick(row: number, col: number) {
-    const piece = this.board[row][col];
-
-    // If a piece is already selected
-    if (this.selectedPiece) {
-      // If clicking on the same piece, deselect it
-      if (this.selectedPiece.row === row && this.selectedPiece.col === col) {
-        this.selectedPiece = null;
-        return;
+  initializeGame(): void {
+    // Ne pas initialiser le jeu, juste préparer l'état
+    this.game = null;
+    this.message = 'Choisissez les options et commencez une partie';
+  }  async startGame(): Promise<void> {
+    this.message = 'Chargement du jeu...';
+    
+    try {
+      // S'assurer que toutes les dépendances sont chargées
+      await this.loadDependencies();
+      
+      // Vérifier que Chess.js est disponible
+      if (!(window as any).Chess) {
+        throw new Error('Chess.js n\'est pas disponible après chargement');
       }
-      // Try to move the selected piece
-      this.movePiece(row, col);
+      
+      this.gameStarted = true;
+      this.gameOver = false;
+      
+      // Initialiser le jeu d'échecs
+      this.game = new (window as any).Chess();
+      console.log('Jeu d\'échecs initialisé:', this.game);
+      this.currentPlayerTurn = 'white'; // Le blanc commence toujours aux échecs
+      
+      // Initialiser le plateau
+      setTimeout(() => {
+        this.initializeBoard();
+        if (this.selectedColor === 'black' && this.currentPlayerTurn === 'white') {
+          setTimeout(() => {
+            this.makeBestMove(this.selectedDifficulty);
+          }, 300);
+        }
+      }, 100);
+      
+    } catch (e) {
+      console.error('Erreur d\'initialisation du jeu:', e);
+      this.message = 'Erreur d\'initialisation du jeu d\'échecs';
+      this.gameStarted = false;
+    }
+  }
+  resetGame(): void {
+    this.gameStarted = false;
+    this.gameOver = false;
+    this.moveHistory = [];
+    this.capturedWhitePieces = [];
+    this.capturedBlackPieces = [];
+    this.message = '';
+    this.currentPlayerTurn = 'white';
+  }  initializeBoard(): void {
+    // Assurons-nous que ChessBoard et jQuery sont bien disponibles
+    if (!(window as any).ChessBoard || !(window as any).$) {
+      console.error('ChessBoard ou jQuery non disponible');
+      this.message = 'Erreur: Bibliothèque d\'échecs non chargée';
       return;
     }
-
-    // If no piece is selected and it's the player's turn
-    if (this.currentPlayer === this.playerColor && piece) {
-      const isWhitePiece = piece.charCodeAt(0) >= 9812 && piece.charCodeAt(0) <= 9817;
-      // Only allow selecting pieces of the player's color
-      if ((this.playerColor === 'white' && isWhitePiece) || 
-          (this.playerColor === 'black' && !isWhitePiece)) {
-        this.selectedPiece = { row, col };
-      }
-    }
-  }
-
-  isPathClear(fromRow: number, fromCol: number, toRow: number, toCol: number): boolean {
-    const rowStep = toRow > fromRow ? 1 : toRow < fromRow ? -1 : 0;
-    const colStep = toCol > fromCol ? 1 : toCol < fromCol ? -1 : 0;
-
-    let currentRow = fromRow + rowStep;
-    let currentCol = fromCol + colStep;
-
-    while (currentRow !== toRow || currentCol !== toCol) {
-      if (this.board[currentRow][currentCol] !== '') {
-        return false;
-      }
-      currentRow += rowStep;
-      currentCol += colStep;
-    }
-
-    return true;
-  }
-
-  isKingInCheck(color: 'white' | 'black'): boolean {
-    // Trouver la position du roi
-    let kingRow = -1;
-    let kingCol = -1;
-    const kingPiece = color === 'white' ? '♔' : '♚';
-
-    for (let row = 0; row < 8; row++) {
-      for (let col = 0; col < 8; col++) {
-        if (this.board[row][col] === kingPiece) {
-          kingRow = row;
-          kingCol = col;
-          break;
-        }
-      }
-      if (kingRow !== -1) break;
-    }
-
-    // Vérifier si une pièce adverse peut atteindre le roi
-    for (let row = 0; row < 8; row++) {
-      for (let col = 0; col < 8; col++) {
-        const piece = this.board[row][col];
-        if (piece && this.isPieceOfColor(piece, color === 'white' ? 'black' : 'white')) {
-          if (this.isValidMove(row, col, kingRow, kingCol, piece)) {
-            return true;
-          }
-        }
-      }
-    }
-
-    return false;
-  }
-
-  isCheckmate(color: 'white' | 'black'): boolean {
-    // Si le roi n'est pas en échec, ce n'est pas un échec et mat
-    if (!this.isKingInCheck(color)) {
-      return false;
-    }
-
-    // Pour chaque pièce de notre couleur
-    for (let fromRow = 0; fromRow < 8; fromRow++) {
-      for (let fromCol = 0; fromCol < 8; fromCol++) {
-        const piece = this.board[fromRow][fromCol];
-        if (piece && this.isPieceOfColor(piece, color)) {
-          // Pour chaque case possible sur le plateau
-          for (let toRow = 0; toRow < 8; toRow++) {
-            for (let toCol = 0; toCol < 8; toCol++) {
-              // Si le mouvement est valide selon les règles de la pièce
-              if (this.isValidMove(fromRow, fromCol, toRow, toCol, piece)) {
-                // Faire le mouvement temporairement
-                const targetPiece = this.board[toRow][toCol];
-                this.board[toRow][toCol] = piece;
-                this.board[fromRow][fromCol] = '';
-
-                // Vérifier si ce mouvement sort de l'échec
-                const stillInCheck = this.isKingInCheck(color);
-
-                // Annuler le mouvement
-                this.board[fromRow][fromCol] = piece;
-                this.board[toRow][toCol] = targetPiece;
-
-                // Si nous avons trouvé un mouvement qui sort de l'échec
-                if (!stillInCheck) {
-                  return false;
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-
-    // Si aucun mouvement ne peut sauver le roi, c'est échec et mat
-    return true;
-  }
-
-  isPieceOfColor(piece: string, color: 'white' | 'black'): boolean {
-    const isWhitePiece = piece.charCodeAt(0) >= 9812 && piece.charCodeAt(0) <= 9817;
-    return color === 'white' ? isWhitePiece : !isWhitePiece;
-  }
-
-  isValidMove(fromRow: number, fromCol: number, toRow: number, toCol: number, piece: string): boolean {
-    const rowDiff = Math.abs(fromRow - toRow);
-    const colDiff = Math.abs(fromCol - toCol);
-    const targetPiece = this.board[toRow][toCol];
-
-    // Vérifier si la pièce cible est de la même couleur
-    if (targetPiece && this.isPieceOfColor(targetPiece, this.isPieceOfColor(piece, 'white') ? 'white' : 'black')) {
-      return false;
-    }
-
-    // Règles spécifiques pour chaque pièce
-    switch (piece) {
-      case '♙': // White pawn
-        if (fromRow === 6) {
-          if ((fromRow - toRow === 1 || fromRow - toRow === 2) && colDiff === 0 && !targetPiece) {
-            return true;
-          }
-        }
-        if (fromRow - toRow === 1 && (
-          (colDiff === 0 && !targetPiece) ||
-          (colDiff === 1 && targetPiece && !this.isPieceOfColor(targetPiece, 'white'))
-        )) {
-          return true;
-        }
-        return false;
-
-      case '♟': // Black pawn
-        if (fromRow === 1) {
-          if ((toRow - fromRow === 1 || toRow - fromRow === 2) && colDiff === 0 && !targetPiece) {
-            return true;
-          }
-        }
-        if (toRow - fromRow === 1 && (
-          (colDiff === 0 && !targetPiece) ||
-          (colDiff === 1 && targetPiece && !this.isPieceOfColor(targetPiece, 'black'))
-        )) {
-          return true;
-        }
-        return false;
-
-      case '♖': // White rook
-      case '♜': // Black rook
-        return (rowDiff === 0 || colDiff === 0) && this.isPathClear(fromRow, fromCol, toRow, toCol);
-
-      case '♘': // White knight
-      case '♞': // Black knight
-        return (rowDiff === 2 && colDiff === 1) || (rowDiff === 1 && colDiff === 2);
-
-      case '♗': // White bishop
-      case '♝': // Black bishop
-        return rowDiff === colDiff && this.isPathClear(fromRow, fromCol, toRow, toCol);
-
-      case '♕': // White queen
-      case '♛': // Black queen
-        return (rowDiff === colDiff || rowDiff === 0 || colDiff === 0) && 
-               this.isPathClear(fromRow, fromCol, toRow, toCol);
-
-      case '♔': // White king
-      case '♚': // Black king
-        return rowDiff <= 1 && colDiff <= 1;
-
-      default:
-        return false;
-    }
-  }
-
-  private isValidKingMove(fromRow: number, fromCol: number, toRow: number, toCol: number, piece: string): boolean {
-    const rowDiff = Math.abs(fromRow - toRow);
-    const colDiff = Math.abs(fromCol - toCol);
-    const isWhite = piece === '♔';
     
-    // Normal king move
-    if (rowDiff <= 1 && colDiff <= 1) {
-      return true;
-    }
-
-    // Castling
-    if (rowDiff === 0 && colDiff === 2 && !this.isKingInCheck(isWhite ? 'white' : 'black')) {
-      const hasKingMoved = this.hasKingMoved[isWhite ? 'white' : 'black'];
-      if (!hasKingMoved) {
-        // Kingside castling
-        if (toCol > fromCol && !this.hasRookMoved[isWhite ? 'white' : 'black'].kingside) {
-          return this.isPathClear(fromRow, fromCol, toRow, 7) &&
-                 !this.isSquareUnderAttack(fromRow, fromCol + 1, isWhite ? 'white' : 'black') &&
-                 !this.isSquareUnderAttack(fromRow, fromCol + 2, isWhite ? 'white' : 'black');
-        }
-        // Queenside castling
-        if (toCol < fromCol && !this.hasRookMoved[isWhite ? 'white' : 'black'].queenside) {
-          return this.isPathClear(fromRow, fromCol, toRow, 0) &&
-                 !this.isSquareUnderAttack(fromRow, fromCol - 1, isWhite ? 'white' : 'black') &&
-                 !this.isSquareUnderAttack(fromRow, fromCol - 2, isWhite ? 'white' : 'black');
-        }
-      }
-    }
-    return false;
-  }
-
-  private isValidEnPassant(fromRow: number, fromCol: number, toRow: number, toCol: number, piece: string): boolean {
-    if (!this.lastMove) {
-      return false;
-    }
-
-    const isWhitePawn = piece === '♙';
-    const direction = isWhitePawn ? -1 : 1;
+    const ChessBoardLib = (window as any).ChessBoard;
     
-    const isOpponentPawn = this.lastMove.piece === (isWhitePawn ? '♟' : '♙');
-    const isDoublePawnMove = Math.abs(this.lastMove.from.row - this.lastMove.to.row) === 2;
-    const isAdjacentRow = this.lastMove.to.row === fromRow;
-    const isAdjacentCol = Math.abs(this.lastMove.to.col - fromCol) === 1;
-    const isDiagonalForward = toRow === fromRow + direction;
-    const isCorrectCapture = toCol === this.lastMove.to.col;
+    try {
+      const config = {
+        draggable: true,
+        position: 'start',
+        orientation: this.selectedColor,
+        onDragStart: this.onDragStart.bind(this),
+        onDrop: this.onDrop.bind(this),
+        onSnapEnd: this.onSnapEnd.bind(this),
+        moveSpeed: 200, // Vitesse d'animation des déplacements
+        snapbackSpeed: 100, // Vitesse de retour en cas de coup invalide
+        snapSpeed: 100, // Vitesse d'ajustement de positionnement
+        trashSpeed: 100, // Vitesse d'animation des captures
+        pieceTheme: 'https://chessboardjs.com/img/chesspieces/wikipedia/{piece}.png'
+      };
 
-    return isOpponentPawn && isDoublePawnMove && isAdjacentRow && 
-           isAdjacentCol && isDiagonalForward && isCorrectCapture;
-  }
-
-  private isSquareUnderAttack(row: number, col: number, color: 'white' | 'black'): boolean {
-    for (let fromRow = 0; fromRow < 8; fromRow++) {
-      for (let fromCol = 0; fromCol < 8; fromCol++) {
-        const piece = this.board[fromRow][fromCol];
-        if (piece && this.isPieceOfColor(piece, color === 'white' ? 'black' : 'white')) {
-          if (this.isValidMove(fromRow, fromCol, row, col, piece)) {
-            return true;
-          }
-        }
-      }
+      // Créer le plateau avec ChessBoard
+      this.board = ChessBoardLib('board', config);
+      console.log('Plateau initialisé:', this.board);
+    } catch (e) {
+      console.error('Erreur lors de l\'initialisation du plateau:', e);
+      this.message = 'Erreur d\'initialisation du plateau';
     }
-    return false;
+    
+    // Si le joueur a choisi les noirs, l'ordinateur (blancs) doit jouer en premier
+    if (this.selectedColor === 'black' && this.currentPlayerTurn === 'white') {
+      setTimeout(() => {
+        this.makeBestMove(this.selectedDifficulty);
+      }, 300);
+    }
+  }
+  onDragStart(source: any, piece: any, position: any, orientation: any): boolean {
+    // Permet uniquement de déplacer ses propres pièces et uniquement quand c'est son tour
+    return !this.game.game_over() &&
+           ((this.selectedColor === 'white' && this.currentPlayerTurn === 'white' && piece.search(/^w/) !== -1) ||
+            (this.selectedColor === 'black' && this.currentPlayerTurn === 'black' && piece.search(/^b/) !== -1));
+  }  onDrop(source: any, target: any): string {
+    console.log(`Tentative de déplacement de ${source} vers ${target}`);
+    // Vérifier si le mouvement est légal
+    try {
+      const move = this.game.move({
+        from: source,
+        to: target,
+        promotion: 'q' // Promouvoir toujours en reine pour simplifier
+      });
+      
+      console.log('Résultat du mouvement:', move);
+        if (move === null) {
+        console.warn('Mouvement invalide');
+        return 'snapback';
+      }
+      
+      // Vérifier s'il y a eu une capture
+      if (move.captured) {
+        const capturedPiece = move.captured; // Pièce capturée (p, n, b, r, q)
+        const pieceColor = move.color === 'w' ? 'black' : 'white'; // La couleur de la pièce capturée
+        
+        // Transformer le code en symbole Unicode pour l'affichage
+        let pieceSymbol = this.getPieceSymbol(capturedPiece, pieceColor === 'white');
+        
+        // Ajouter la pièce capturée à la liste appropriée
+        if (pieceColor === 'white') {
+          this.capturedWhitePieces.push(pieceSymbol);
+        } else {
+          this.capturedBlackPieces.push(pieceSymbol);
+        }
+      }
+      
+      this.moveHistory.push(`${this.moveHistory.length + 1}. ${move.san}`);
+      console.log('Historique mis à jour:', this.moveHistory);
+      
+      // Changer le tour en fonction de qui a joué
+      this.currentPlayerTurn = this.currentPlayerTurn === 'white' ? 'black' : 'white';
+      console.log('Tour actuel:', this.currentPlayerTurn);
+      
+      // Vérifier si le jeu est terminé
+      this.checkGameStatus();
+      
+      // Si le jeu n'est pas terminé et c'est le tour de l'ordinateur, faire jouer l'ordinateur
+      if (!this.gameOver && 
+          ((this.selectedColor === 'white' && this.currentPlayerTurn === 'black') || 
+           (this.selectedColor === 'black' && this.currentPlayerTurn === 'white'))) {
+        console.log('L\'ordinateur va jouer...');
+        setTimeout(() => {
+          this.makeBestMove(this.selectedDifficulty);
+        }, 250);
+      }
+      
+      return '';
+    } catch (e: unknown) {
+      console.error('Erreur lors du déplacement:', e);
+      this.message = 'Erreur de déplacement';
+      return 'snapback';
+    }
   }
 
-  movePiece(row: number, col: number) {
-    if (!this.selectedPiece) return;
-
-    const { row: fromRow, col: fromCol } = this.selectedPiece;
-    const piece = this.board[fromRow][fromCol];
-    const targetPiece = this.board[row][col];
-
-    if (this.isValidMove(fromRow, fromCol, row, col, piece)) {
-      // Record the move
-      this.lastMove = { piece, from: { row: fromRow, col: fromCol }, to: { row, col } };
-
-      // Handle castling
-      if ((piece === '♔' || piece === '♚') && Math.abs(col - fromCol) === 2) {
-        const isKingside = col > fromCol;
-        const rookFromCol = isKingside ? 7 : 0;
-        const rookToCol = isKingside ? col - 1 : col + 1;
-        const rookPiece = this.board[fromRow][rookFromCol];
-        this.board[fromRow][rookToCol] = rookPiece;
-        this.board[fromRow][rookFromCol] = '';
-      }
-
-      // Handle en passant capture
-      if ((piece === '♙' || piece === '♟') && Math.abs(fromCol - col) === 1 && !targetPiece) {
-        const capturedRow = fromRow;
-        const capturedPiece = this.board[capturedRow][col];
-        this.board[capturedRow][col] = '';
-        if (this.currentPlayer === 'white') {
-          this.capturedBlack.push(capturedPiece);
+  onSnapEnd(): void {
+    this.board.position(this.game.fen());
+  }
+  // Méthode simulée pour faire jouer l'ordinateur selon la difficulté choisie
+  makeBestMove(difficulty: string): void {
+    if (this.game.game_over()) return;
+    
+    // Simulons un délai de réflexion selon la difficulté
+    let thinkingTime = 300; // Default for easy
+    if (difficulty === 'medium') {
+      thinkingTime = 600;
+    } else if (difficulty === 'hard') {
+      thinkingTime = 1000;
+    }
+    
+    setTimeout(() => {
+      const moves = this.game.moves();
+      
+      // L'IA choisit un coup selon la difficulté
+      let moveIndex;
+      if (difficulty === 'easy') {
+        moveIndex = Math.floor(Math.random() * moves.length);
+      } else if (difficulty === 'medium') {
+        // Un peu plus intelligent, exclut certains coups "mauvais"
+        const goodMoves = moves.filter((m: string) => !m.includes('x')); // Évite les captures si possible
+        moveIndex = Math.floor(Math.random() * (goodMoves.length ?? moves.length));      if (goodMoves.length) {
+          this.game.move(goodMoves[moveIndex]);
         } else {
-          this.capturedWhite.push(capturedPiece);
+          this.game.move(moves[Math.floor(Math.random() * moves.length)]);
+        }
+        this.board.position(this.game.fen());
+        // Changer le tour
+        this.currentPlayerTurn = this.currentPlayerTurn === 'white' ? 'black' : 'white';
+        this.checkGameStatus();
+        return;
+      } else {
+        // Difficile - choix plus stratégique (simulation simplifiée)
+        moveIndex = Math.floor(Math.random() * moves.length / 2); // Préfère les "meilleurs" coups
+      }      // Effectuer le mouvement
+      const move = this.game.move(moves[moveIndex]);
+      this.board.position(this.game.fen());
+      
+      // Vérifier s'il y a eu une capture
+      if (move.captured) {
+        const capturedPiece = move.captured;
+        const pieceColor = move.color === 'w' ? 'black' : 'white';
+        
+        // Transformer le code en symbole Unicode
+        let pieceSymbol = this.getPieceSymbol(capturedPiece, pieceColor === 'white');
+        
+        // Ajouter la pièce capturée à la liste appropriée
+        if (pieceColor === 'white') {
+          this.capturedWhitePieces.push(pieceSymbol);
+        } else {
+          this.capturedBlackPieces.push(pieceSymbol);
         }
       }
-
-      // Update piece movement tracking
-      if (piece === '♔') this.hasKingMoved.white = true;
-      else if (piece === '♚') this.hasKingMoved.black = true;
-      else if (piece === '♖') {
-        if (fromCol === 0) this.hasRookMoved.white.queenside = true;
-        else if (fromCol === 7) this.hasRookMoved.white.kingside = true;
-      }
-      else if (piece === '♜') {
-        if (fromCol === 0) this.hasRookMoved.black.queenside = true;
-        else if (fromCol === 7) this.hasRookMoved.black.kingside = true;
-      }
-
-      // Normal capture and move
-      if (targetPiece) {
-        if (this.currentPlayer === 'white') {
-          this.capturedBlack.push(targetPiece);
-        } else {
-          this.capturedWhite.push(targetPiece);
-        }
-      }
-
-      // Make the move
-      this.board[row][col] = piece;
-      this.board[fromRow][fromCol] = '';
-
-      // Add to move history
-      const moveNotation = `${piece}${String.fromCharCode(97 + fromCol)}${8 - fromRow}${targetPiece ? 'x' : '-'}${String.fromCharCode(97 + col)}${8 - row}`;
-      this.moveHistory.push(moveNotation);
-
-      // Vérifier l'échec et mat
-      const nextPlayer = this.currentPlayer === 'white' ? 'black' : 'white';
-      if (this.isCheckmate(nextPlayer)) {
-        alert(`Échec et mat ! ${this.currentPlayer === 'white' ? 'Les blancs' : 'Les noirs'} gagnent !`);
-        this.resetGame();
+      
+      this.moveHistory.push(`${this.moveHistory.length + 1}. ${move.san}`);
+      
+      // Changer le tour
+      this.currentPlayerTurn = this.currentPlayerTurn === 'white' ? 'black' : 'white';
+      this.checkGameStatus();
+    }, thinkingTime);
+  }
+  checkGameStatus(): void {
+    const playerColor = this.selectedColor;
+    const isPlayerTurn = (this.currentPlayerTurn === playerColor);
+    
+    if (this.game.in_checkmate()) {
+      // Si le joueur actuel est en échec et mat, l'autre a gagné
+      const winnerColor = this.currentPlayerTurn === 'white' ? 'black' : 'white';
+      const playerWon = (winnerColor === playerColor);
+      this.message = playerWon ? 
+        'Vous avez gagné par échec et mat!' : 
+        'L\'ordinateur a gagné par échec et mat!';
+      this.gameOver = true;
+    } else if (this.game.in_draw()) {
+      this.message = 'Partie nulle!';
+      this.gameOver = true;
+    } else if (this.game.in_stalemate()) {
+      this.message = 'Pat! La partie est nulle.';
+      this.gameOver = true;
+    } else if (this.game.in_threefold_repetition()) {
+      this.message = 'Nulle par triple répétition!';
+      this.gameOver = true;
+    } else if (this.game.in_check()) {
+      this.message = isPlayerTurn ? 
+        'Vous êtes en échec!' : 
+        'L\'ordinateur est en échec!';
+    } else {
+      this.message = isPlayerTurn ? 
+        'À votre tour' : 
+        'L\'ordinateur réfléchit...';
+    }
+  }
+  loadScript(url: string): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      // Vérifier si le script est déjà chargé
+      if (document.querySelector(`script[src="${url}"]`)) {
+        resolve();
         return;
       }
-
-      // Vérifier l'échec
-      if (this.isKingInCheck(nextPlayer)) {
-        alert('Échec !');
-      }
-
-      this.currentPlayer = nextPlayer;
-
-      if (this.currentPlayer !== this.playerColor) {
-        setTimeout(() => this.makeAIMove(), 500);
-      }
-    }
-
-    this.selectedPiece = null;
-  }
-
-  private isValidPawnMove(fromRow: number, fromCol: number, toRow: number, toCol: number, piece: string, targetPiece: string | undefined) {
-    const colDiff = Math.abs(fromCol - toCol);
-    const isWhite = piece === '♙';
-    const direction = isWhite ? -1 : 1;
-    const startRow = isWhite ? 6 : 1;
-
-    // First move: can move 1 or 2 squares forward
-    if (fromRow === startRow && !targetPiece) {
-      if (colDiff === 0) {
-        if (toRow - fromRow === direction || toRow - fromRow === 2 * direction) {
-          return true;
-        }
-      }
-      return false;
-    }
-
-    // Regular move: 1 square forward
-    if (!targetPiece && colDiff === 0 && toRow - fromRow === direction) {
-      return true;
-    }
-
-    // Capture: 1 square diagonally forward
-    if (targetPiece && colDiff === 1 && toRow - fromRow === direction) {
-      const isWhitePiece = targetPiece.charCodeAt(0) >= 9812 && targetPiece.charCodeAt(0) <= 9817;
-      return isWhite ? !isWhitePiece : isWhitePiece;
-    }
-
-    return false;
-  }
-
-  private evaluatePosition(): number {
-    let score = 0;
-    
-    // Material evaluation
-    for (let row = 0; row < 8; row++) {
-      for (let col = 0; col < 8; col++) {
-        const piece = this.board[row][col];
-        if (piece) {
-          score += this.PIECE_VALUES[piece] || 0;
-          
-          // Position evaluation for pawns and knights
-          if (piece === '♙') {
-            score += this.POSITION_BONUS.PAWN[row][col];
-          } else if (piece === '♟') {
-            score -= this.POSITION_BONUS.PAWN[7-row][col];
-          } else if (piece === '♘') {
-            score += this.POSITION_BONUS.KNIGHT[row][col];
-          } else if (piece === '♞') {
-            score -= this.POSITION_BONUS.KNIGHT[7-row][col];
-          }
-        }
-      }
-    }
-    
-    return score;
-  }
-
-  makeAIMove() {
-    const possibleMoves = this.getPossibleMovesForAI();
-    
-    if (possibleMoves.length > 0) {
-      let bestMove;
-      const isInCheck = this.isKingInCheck(this.currentPlayer);
-
-      if (isInCheck) {
-        // Filter moves that get out of check
-        const validMoves = possibleMoves.filter(move => {
-          const piece = this.board[move.fromRow][move.fromCol];
-          // Try the move
-          const originalTarget = this.board[move.toRow][move.toCol];
-          this.board[move.toRow][move.toCol] = piece;
-          this.board[move.fromRow][move.fromCol] = '';
-          
-          // Check if we're still in check
-          const stillInCheck = this.isKingInCheck(this.currentPlayer);
-          
-          // Undo the move
-          this.board[move.fromRow][move.fromCol] = piece;
-          this.board[move.toRow][move.toCol] = originalTarget;
-          
-          return !stillInCheck;
-        });
-
-        if (validMoves.length > 0) {
-          // Choose a random move that gets out of check
-          bestMove = validMoves[Math.floor(Math.random() * validMoves.length)];
-        } else {
-          // If no valid moves, it's checkmate
-          alert(`Échec et mat ! ${this.currentPlayer === 'white' ? 'Les noirs' : 'Les blancs'} gagnent !`);
-          this.resetGame();
-          return;
-        }
-      } else {
-        // Normal move evaluation if not in check
-        // ... existing evaluation code ...
-        bestMove = this.evaluateBestMove(possibleMoves);
-      }
-
-      // Execute the move
-      const piece = this.board[bestMove.fromRow][bestMove.fromCol];
-      const targetPiece = this.board[bestMove.toRow][bestMove.toCol];
       
-      if (targetPiece) {
-        if (this.currentPlayer === 'white') {
-          this.capturedBlack.push(targetPiece);
-        } else {
-          this.capturedWhite.push(targetPiece);
-        }
-      }
-      
-      this.board[bestMove.toRow][bestMove.toCol] = piece;
-      this.board[bestMove.fromRow][bestMove.fromCol] = '';
-      
-      // Add to move history
-      const moveNotation = `${piece}${String.fromCharCode(97 + bestMove.fromCol)}${8 - bestMove.fromRow}${targetPiece ? 'x' : '-'}${String.fromCharCode(97 + bestMove.toCol)}${8 - bestMove.toRow}`;
-      this.moveHistory.push(moveNotation);
-      
-      const nextPlayer = this.currentPlayer === 'white' ? 'black' : 'white';
-      
-      // Check if the move puts the opponent in check or checkmate
-      if (this.isKingInCheck(nextPlayer)) {
-        if (this.isCheckmate(nextPlayer)) {
-          alert(`Échec et mat ! ${this.currentPlayer === 'white' ? 'Les blancs' : 'Les noirs'} gagnent !`);
-          this.resetGame();
-          return;
-        }
-        alert('Échec !');
-      }
-      
-      this.currentPlayer = nextPlayer;
-      this.selectedPiece = null;
-    }
-  }
-
-  private evaluateBestMove(moves: any[]) {
-    const evaluatedMoves = moves.map(move => {
-      const piece = this.board[move.fromRow][move.fromCol];
-      const originalTarget = this.board[move.toRow][move.toCol];
-      
-      // Make temporary move
-      this.board[move.toRow][move.toCol] = piece;
-      this.board[move.fromRow][move.fromCol] = '';
-      
-      const score = this.evaluatePosition();
-      
-      // Undo move
-      this.board[move.fromRow][move.fromCol] = piece;
-      this.board[move.toRow][move.toCol] = originalTarget;
-      
-      return { ...move, score };
+      const script = document.createElement('script');
+      script.src = url;
+      script.onload = () => {
+        console.log(`Script ${url} chargé avec succès`);
+        resolve();
+      };
+      script.onerror = () => {
+        const error = new Error(`Échec du chargement du script ${url}`);
+        console.error(error);
+        reject(error);
+      };
+      document.body.appendChild(script);
     });
+  }
+  
+  loadCss(url: string): void {
+    // Vérifier si le CSS est déjà chargé
+    if (document.querySelector(`link[href="${url}"]`)) {
+      return;
+    }
     
-    return this.playerColor === 'black' 
-      ? evaluatedMoves.reduce((a, b) => a.score > b.score ? a : b)
-      : evaluatedMoves.reduce((a, b) => a.score < b.score ? a : b);
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = url;
+    document.head.appendChild(link);
+    console.log(`CSS ${url} chargé`);
   }
-
-  private getPossibleMovesForAI(): { fromRow: number; fromCol: number; toRow: number; toCol: number }[] {
-    const possibleMoves: { fromRow: number; fromCol: number; toRow: number; toCol: number }[] = [];
-    const isAIWhite = this.playerColor === 'black';
-
-    for (let row = 0; row < 8; row++) {
-      for (let col = 0; col < 8; col++) {
-        const piece = this.board[row][col];
-        if (piece) {
-          const isWhitePiece = piece.charCodeAt(0) >= 9812 && piece.charCodeAt(0) <= 9817;
-          if ((isAIWhite && isWhitePiece) || (!isAIWhite && !isWhitePiece)) {
-            for (let targetRow = 0; targetRow < 8; targetRow++) {
-              for (let targetCol = 0; targetCol < 8; targetCol++) {
-                if (this.isValidMove(row, col, targetRow, targetCol, piece)) {
-                  possibleMoves.push({
-                    fromRow: row,
-                    fromCol: col,
-                    toRow: targetRow,
-                    toCol: targetCol
-                  });
-                }
-              }
-            }
-          }
-        }
+  
+  async loadDependencies(): Promise<void> {
+    try {
+      // Charger jQuery en premier s'il n'est pas déjà chargé
+      if (!(window as any).$) {
+        await this.loadScript('https://code.jquery.com/jquery-3.6.0.min.js');
       }
-    }
-    return possibleMoves;
-  }
-
-  private addValidMovesForPiece(
-    row: number,
-    col: number,
-    piece: string,
-    possibleMoves: { fromRow: number; fromCol: number; toRow: number; toCol: number }[]
-  ) {
-    for (let targetRow = 0; targetRow < 8; targetRow++) {
-      for (let targetCol = 0; targetCol < 8; targetCol++) {
-        if (this.isValidMove(row, col, targetRow, targetCol, piece)) {
-          possibleMoves.push({ fromRow: row, fromCol: col, toRow: targetRow, toCol: targetCol });
-        }
+      
+      // Ensuite charger Chess.js
+      if (!(window as any).Chess) {
+        await this.loadScript('https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.2/chess.min.js');
       }
+      
+      // Enfin charger ChessBoard.js qui dépend des deux autres
+      if (!(window as any).ChessBoard) {
+        await this.loadScript('https://chessboardjs.com/js/chessboard.min.js');
+      }
+      
+      return Promise.resolve();
+    } catch (error) {
+      console.error('Erreur lors du chargement des dépendances:', error);
+      this.message = 'Erreur de chargement des bibliothèques d\'échecs';
+      return Promise.reject(new Error('Erreur de chargement des dépendances'));
     }
   }
-
-  onDifficultyChange() {
-    // Placeholder for difficulty change logic
-    console.log('Difficulty changed. Implement logic here.');
-  }
-
-  startGame(color: 'white' | 'black') {
-    this.playerColor = color;
-    this.hasSelectedColor = true;
-    this.currentPlayer = 'white';
-    this.moveHistory = [];
-    this.capturedWhite = [];
-    this.capturedBlack = [];
-    this.selectedPiece = null;
-    this.hasKingMoved = { white: false, black: false };
-    this.hasRookMoved = {
-      white: { kingside: false, queenside: false },
-      black: { kingside: false, queenside: false }
+  getPieceSymbol(pieceType: string, isWhite: boolean): string {
+    const pieceSymbols: { [key: string]: [string, string] } = {
+      'p': ['♙', '♟'], // Pion (blanc, noir)
+      'n': ['♘', '♞'], // Cavalier
+      'b': ['♗', '♝'], // Fou
+      'r': ['♖', '♜'], // Tour
+      'q': ['♕', '♛'], // Dame
+      'k': ['♔', '♚']  // Roi
     };
-    this.lastMove = null;
     
-    this.initializeBoard();
-    
-    // Si le joueur choisit les noirs, l'IA (blancs) joue en premier
-    if (this.playerColor === 'black') {
-      setTimeout(() => this.makeAIMove(), 500);
-    }
-  }
-
-  resetGame() {
-    this.hasSelectedColor = false;
-    this.currentPlayer = 'white';
-    this.capturedWhite = [];
-    this.capturedBlack = [];
-    this.selectedPiece = null;
-    this.initializeBoard();
-  }
-
-  setPlayerColor(color: 'white' | 'black') {
-    this.playerColor = color;
-    this.currentPlayer = 'white'; // Toujours commencer par les blancs
-    this.resetGame();
+    return pieceSymbols[pieceType][isWhite ? 0 : 1];
   }
 }

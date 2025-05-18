@@ -164,3 +164,86 @@ button {
 .moves div:nth-child(odd) {
   background-color: #e0e0e0;
 }
+
+/* Styles généraux pour l'échiquier */
+.chess-board-container {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* Correction du problème de décalage */
+.chess-board {
+  /* Cette propriété assure que le plateau reste carré */
+  aspect-ratio: 1 / 1;
+}
+
+/* Style pour les options de difficulté */
+.difficulty-option {
+  border-color: #d1d5db;
+  transition: all 0.2s ease;
+}
+
+.difficulty-option:hover {
+  background-color: #eef2ff;
+  border-color: #a5b4fc;
+}
+
+.difficulty-option.selected-difficulty,
+.color-option.selected-color {
+  background-color: #e0e7ff;
+  border-color: #6366f1;
+  font-weight: 500;
+}
+
+.color-option {
+  border-color: #d1d5db;
+  transition: all 0.2s ease;
+}
+
+.color-option:hover {
+  background-color: #eef2ff;
+  border-color: #a5b4fc;
+}
+
+/* Style pour l'écran d'accueil */
+.welcome-screen {
+  transition: all 0.3s ease;
+}
+
+/* Assurer la responsivité */
+@media (max-width: 768px) {
+  .chess-game-container {
+    flex-direction: column;
+  }
+  
+  .chess-board-container, 
+  .game-info {
+    width: 100%;
+  }
+}
+
+/* Animation subtile pour les messages */
+.game-message {
+  transition: background-color 0.3s ease;
+}
+
+/* Style pour les pièces capturées */
+.piece-symbol {
+  font-size: 1.5rem;
+  margin-right: 4px;
+  display: inline-block;
+}
+
+/* Style pour l'historique des coups */
+.move-item {
+  margin-bottom: 4px;
+}
+
+.move-history {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.captured-pieces {
+  margin-bottom: 12px;
+}

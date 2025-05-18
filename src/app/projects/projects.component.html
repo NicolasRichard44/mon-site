@@ -1,2 +1,31 @@
-<section class='py-12 '><h2 class='text-3xl font-bold'>Projects</h2></section>
-<app-echecs></app-echecs>
+<section class='py-12'>
+  <h2 class='text-3xl font-bold'>Projects</h2>
+  <p class="mt-4">Découvrez mes différents projets de développement, incluant des composants interactifs.</p>
+  
+  <div class="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+    <!-- Projet d'échecs -->
+    <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+      <h3 class="text-xl font-semibold text-indigo-600 dark:text-indigo-400">Jeu d'échecs</h3>
+      <p class="mt-2 text-gray-600 dark:text-gray-300">Un jeu d'échecs interactif codé en Angular avec différents niveaux de difficulté.</p>
+      <button (click)="toggleChessGame()" class="mt-4 px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition-colors">
+        {{ showChess ? 'Cacher le jeu' : 'Afficher le jeu' }}
+      </button>
+    </div>
+    
+    <!-- Autres projets (placeholders) -->
+    <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md opacity-50">
+      <h3 class="text-xl font-semibold">Projet en cours</h3>
+      <p class="mt-2 text-gray-600 dark:text-gray-300">Ce projet est actuellement en développement.</p>
+    </div>
+
+    <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md opacity-50">
+      <h3 class="text-xl font-semibold">À venir</h3>
+      <p class="mt-2 text-gray-600 dark:text-gray-300">Plus de projets seront ajoutés prochainement.</p>
+    </div>
+  </div>
+  
+  <!-- Composant d'échecs conditionnellement affiché -->
+  <div *ngIf="showChess" class="mt-8 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
+    <app-echecs></app-echecs>
+  </div>
+</section>

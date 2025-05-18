@@ -20,7 +20,6 @@
     "@angular/router": "^19.2.5",
     "chess.js": "^1.1.0",
     "chessboardjs": "^0.0.1",
-    "ngx-chess-board": "^3.0.0",
     "rxjs": "~7.5.0",
     "stockfish": "^16.0.0",
     "tslib": "^2.3.0",

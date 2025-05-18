@@ -24,12 +24,10 @@
             "assets": [
               "src/favicon.ico",
               "src/assets"
-            ],
-            "styles": [
-              "node_modules/chessboardjs/www/css/chessboard.css",
+            ],            "styles": [
               "src/styles.css"
             ],
-            "scripts": ["node_modules/chessboardjs/www/js/chessboard.js"],
+            "scripts": [],
             "browser": "src/main.ts",
             "webWorkerTsConfig": "tsconfig.worker.json"
           },
