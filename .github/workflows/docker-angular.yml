@@ -31,3 +31,4 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/mon-site:latest
+          platforms: linux/amd64,linux/arm64
