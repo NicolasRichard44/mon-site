@@ -1,0 +1,14 @@
+
+services:
+  frontend:
+    build: ./
+    container_name: angular-frontend-mon-site
+    networks:
+      - media_net
+    labels:
+      caddy: ton-site.itsmenico.cc
+      caddy.reverse_proxy: "{{upstreams 80}}"
+
+networks:
+  media_net:
+    external: true
