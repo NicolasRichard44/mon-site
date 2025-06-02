@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
     paths:
-      - 'frontend/**'
+      - '/**'
       - '.github/workflows/docker-angular.yml'
 
 jobs:
@@ -30,4 +30,4 @@ jobs:
           context: ./
           file: ./Dockerfile
           push: true
-          tags: NicolasRichard44/mon-site:latest
+          tags: ${{ secrets.DOCKER_USERNAME }}/mon-site:latest
