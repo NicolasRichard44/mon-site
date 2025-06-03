@@ -31,4 +31,6 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/mon-site:latest
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/arm64
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
