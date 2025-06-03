@@ -9,6 +9,6 @@ RUN npm run build --prod --build-optimizer
 # Étape de déploiement (NGINX)
 FROM nginx:alpine
 RUN mkdir /app
-COPY --from=build /app/dist/mon-site /usr/share/nginx/html
+COPY --from=build /app/dist/mon-site/browser /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/nginx.conf
 EXPOSE 3000
