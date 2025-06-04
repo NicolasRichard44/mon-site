@@ -1,6 +1,5 @@
 {
   "extends": ["config:base"],
-  "platformAutomerge": false,
   "packageRules": [
     {
       "matchUpdateTypes": ["minor", "patch"],
