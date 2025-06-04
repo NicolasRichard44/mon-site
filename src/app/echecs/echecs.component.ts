@@ -207,71 +207,29 @@ export class EchecsComponent implements OnInit, AfterViewInit {
     this.message = 'L\'ordinateur réfléchit...';
     
     setTimeout(() => {
-      const moves = this.game.moves();
-      
-      let moveIndex;
-      if (difficulty === 'easy') {
-        moveIndex = Math.floor(Math.random() * moves.length);
-        const move = this.game.move(moves[moveIndex]);
-        this.board.position(this.game.fen());
-        
-        if (move.captured) {
-          const capturedPiece = move.captured;
-          const pieceColor = move.color === 'w' ? 'black' : 'white';
-          
-          let pieceSymbol = this.getPieceSymbol(capturedPiece, pieceColor === 'white');
-          
-          if (pieceColor === 'white') {
-            this.capturedWhitePieces.push(pieceSymbol);
-          } else {
-            this.capturedBlackPieces.push(pieceSymbol);
-          }
-        }
-        
-        this.moveHistory.push(`${this.moveHistory.length + 1}. ${move.san}`);
-        this.currentPlayerTurn = this.currentPlayerTurn === 'white' ? 'black' : 'white';
-        this.checkGameStatus();
-        
-      } else if (difficulty === 'medium') {
-        const goodMoves = moves.filter((m: string) => !m.includes('x'));
+      try {
+        const moveDetails = this.getAllPossibleMovesWithDetails();
         let selectedMove;
         
-        if (goodMoves.length) {
-          moveIndex = Math.floor(Math.random() * goodMoves.length);
-          selectedMove = this.game.move(goodMoves[moveIndex]);
+        if (difficulty === 'easy') {
+          selectedMove = this.selectRandomMove(moveDetails);
+        } else if (difficulty === 'medium') {
+          selectedMove = this.selectMediumMove(moveDetails);
         } else {
-          moveIndex = Math.floor(Math.random() * moves.length);
-          selectedMove = this.game.move(moves[moveIndex]);
+          selectedMove = this.selectHardMove(moveDetails);
         }
         
-        this.board.position(this.game.fen());
+        const move = this.game.move({
+          from: selectedMove.from,
+          to: selectedMove.to,
+          promotion: selectedMove.promotion || 'q'
+        });
         
-        if (selectedMove.captured) {
-          const capturedPiece = selectedMove.captured;
-          const pieceColor = selectedMove.color === 'w' ? 'black' : 'white';
-          
-          let pieceSymbol = this.getPieceSymbol(capturedPiece, pieceColor === 'white');
-          
-          if (pieceColor === 'white') {
-            this.capturedWhitePieces.push(pieceSymbol);
-          } else {
-            this.capturedBlackPieces.push(pieceSymbol);
-          }
-        }
-        
-        this.moveHistory.push(`${this.moveHistory.length + 1}. ${selectedMove.san}`);
-        this.currentPlayerTurn = this.currentPlayerTurn === 'white' ? 'black' : 'white';
-        this.checkGameStatus();
-        
-      } else {
-        moveIndex = Math.floor(Math.random() * moves.length / 2);
-        const move = this.game.move(moves[moveIndex]);
         this.board.position(this.game.fen());
         
         if (move.captured) {
           const capturedPiece = move.captured;
           const pieceColor = move.color === 'w' ? 'black' : 'white';
-          
           let pieceSymbol = this.getPieceSymbol(capturedPiece, pieceColor === 'white');
           
           if (pieceColor === 'white') {
@@ -282,6 +240,16 @@ export class EchecsComponent implements OnInit, AfterViewInit {
         }
         
         this.moveHistory.push(`${this.moveHistory.length + 1}. ${move.san}`);
+        this.currentPlayerTurn = this.currentPlayerTurn === 'white' ? 'black' : 'white';
+        this.checkGameStatus();
+      } catch (error) {
+        console.error('Erreur lors du calcul du coup de l\'ordinateur:', error);
+        
+        const moves = this.game.moves();
+        const moveIndex = Math.floor(Math.random() * moves.length);
+        const move = this.game.move(moves[moveIndex]);
+        
+        this.board.position(this.game.fen());
         this.currentPlayerTurn = this.currentPlayerTurn === 'white' ? 'black' : 'white';
         this.checkGameStatus();
       }
@@ -323,14 +291,109 @@ export class EchecsComponent implements OnInit, AfterViewInit {
   
   getPieceSymbol(pieceType: string, isWhite: boolean): string {
     const pieceSymbols: { [key: string]: [string, string] } = {
-      'p': ['♙', '♟'], // Pion (blanc, noir)
-      'n': ['♘', '♞'], // Cavalier
-      'b': ['♗', '♝'], // Fou
-      'r': ['♖', '♜'], // Tour
-      'q': ['♕', '♛'], // Dame
-      'k': ['♔', '♚']  // Roi
+      'p': ['♙', '♟'],
+      'n': ['♘', '♞'],
+      'b': ['♗', '♝'],
+      'r': ['♖', '♜'],
+      'q': ['♕', '♛'],
+      'k': ['♔', '♚']
     };
     
     return pieceSymbols[pieceType][isWhite ? 0 : 1];
+  }
+  
+  getAllPossibleMovesWithDetails(): any[] {
+    const moves = this.game.moves({ verbose: true });
+    return moves.map((move: any) => {
+      const gameCopy = new (window as any).Chess(this.game.fen());
+      gameCopy.move(move);
+      
+      let score = 0;
+      
+      if (move.captured) {
+        const pieceValues: { [key: string]: number } = {
+          'p': 1,
+          'n': 3,
+          'b': 3,
+          'r': 5,
+          'q': 9,
+          'k': 0
+        };
+        score += pieceValues[move.captured] * 10;
+      }
+      
+      if (gameCopy.in_check()) {
+        score += 5;
+        if (gameCopy.in_checkmate()) {
+          score += 1000;
+        }
+      }
+      
+      if (this.isPieceUnderThreat(gameCopy, move.to)) {
+        const pieceAtDest = this.game.get(move.to);
+        if (pieceAtDest) {
+          const pieceValues: { [key: string]: number } = {
+            'p': 1,
+            'n': 3,
+            'b': 3,
+            'r': 5,
+            'q': 9,
+            'k': 100
+          };
+          
+          score -= pieceValues[pieceAtDest.type] * 8;
+        }
+      }
+      
+      return {
+        ...move,
+        score: score
+      };
+    });
+  }
+
+  isPieceUnderThreat(game: any, square: string): boolean {
+    const turn = game.turn();
+    const opponentColor = turn === 'w' ? 'b' : 'w';
+    
+    const oldTurn = game.turn();
+    game.turn = () => opponentColor;
+    const opponentMoves = game.moves({ verbose: true });
+    game.turn = () => oldTurn;
+    
+    return opponentMoves.some((move: any) => move.to === square);
+  }
+
+  selectRandomMove(moves: any[]): any {
+    const index = Math.floor(Math.random() * moves.length);
+    return moves[index];
+  }
+
+  selectMediumMove(moves: any[]): any {
+    const sortedMoves = [...moves].sort((a, b) => b.score - a.score);
+    
+    if (Math.random() < 0.7) {
+      const goodMovesCount = Math.max(1, Math.floor(sortedMoves.length * 0.4));
+      const index = Math.floor(Math.random() * goodMovesCount);
+      return sortedMoves[index];
+    } 
+    else {
+      return this.selectRandomMove(moves);
+    }
+  }
+
+  selectHardMove(moves: any[]): any {
+    const sortedMoves = [...moves].sort((a, b) => b.score - a.score);
+    
+    if (Math.random() < 0.9) {
+      const topMovesCount = Math.max(1, Math.floor(sortedMoves.length * 0.25));
+      const index = Math.floor(Math.random() * topMovesCount);
+      return sortedMoves[index];
+    } 
+    else {
+      const goodMovesCount = Math.max(1, Math.floor(sortedMoves.length * 0.5));
+      const index = Math.floor(Math.random() * goodMovesCount);
+      return sortedMoves[index];
+    }
   }
 }

@@ -5,13 +5,27 @@
     <h2 class="text-2xl font-bold mb-4 text-indigo-700 dark:text-indigo-300">Bienvenue au jeu d'échecs</h2>
       <div class="mb-6">
       <p class="mb-3">Choisissez la difficulté :</p>
-      <div class="grid grid-cols-1 gap-3 mb-6">
+      <div class="grid grid-cols-1 gap-3 mb-2">
         <div *ngFor="let option of difficultyOptions" 
              class="difficulty-option p-3 border rounded cursor-pointer transition-all"
              [class.selected-difficulty]="selectedDifficulty === option.value"
              (click)="selectedDifficulty = option.value">
           {{ option.label }}
         </div>
+      </div>
+      
+      <!-- Description de la difficulté sélectionnée -->
+      <div class="text-sm text-left bg-gray-50 dark:bg-gray-700 p-3 rounded mb-4 mt-2">
+        <p class="font-medium mb-1">Niveau : {{ selectedDifficulty === 'easy' ? 'Facile' : selectedDifficulty === 'medium' ? 'Moyen' : 'Difficile' }}</p>
+        <p *ngIf="selectedDifficulty === 'easy'">
+          L'ordinateur joue aléatoirement et ne calcule pas ses coups. Idéal pour les débutants.
+        </p>
+        <p *ngIf="selectedDifficulty === 'medium'">
+          L'ordinateur considère les captures et les échecs. Niveau adapté pour joueurs occasionnels.
+        </p>
+        <p *ngIf="selectedDifficulty === 'hard'">
+          L'ordinateur joue stratégiquement et tente d'anticiper vos coups. Niveau pour joueurs expérimentés.
+        </p>
       </div>
       
       <p class="mb-3 mt-4">Choisissez votre couleur :</p>
