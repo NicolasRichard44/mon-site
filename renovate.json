@@ -9,7 +9,7 @@
         "patch"
       ],
       "automerge": true,
-      "automergeType": "pr"
+      "automergeType": "branch"
     },
     {
       "matchUpdateTypes": [
