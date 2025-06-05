@@ -14,7 +14,7 @@ on:
       - ".github/workflows/docker-angular.yml"
 
 jobs:
-  test-angular:
+  build-angular:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
