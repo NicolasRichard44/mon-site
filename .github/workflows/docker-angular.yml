@@ -2,7 +2,9 @@ name: Build & Push Angular Docker Image
 
 on:
   push:
-    branches: [main]
+    branches:
+          - main
+          - 'renovate/**' 
     paths:
       - "**"
       - ".github/workflows/docker-angular.yml"
