@@ -27,8 +27,8 @@
     "zone.js": "~0.15.0"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "^19.2.6",
-    "@angular/cli": "~19.2.6",
+    "@angular-devkit/build-angular": "^20.0.0",
+    "@angular/cli": "~20.1.0",
     "@angular/compiler-cli": "^19.2.5",
     "@types/chessboardjs": "^0.3.5",
     "@types/jasmine": "~5.1.0",
