@@ -195,6 +195,23 @@ button {
   font-weight: 500;
 }
 
+/* Contraste pour les options sélectionnées */
+.selected-difficulty, .selected-color {
+  background-color: #fff !important;
+  color: #222 !important;
+  border-color: #888 !important;
+  font-weight: bold;
+}
+
+.difficulty-option, .color-option {
+  transition: background 0.2s, color 0.2s;
+}
+
+.difficulty-option:hover, .color-option:hover {
+  background: #444 !important;
+  color: #fff !important;
+}
+
 .color-option {
   border-color: #d1d5db;
   transition: all 0.2s ease;
@@ -246,4 +263,29 @@ button {
 
 .captured-pieces {
   margin-bottom: 12px;
+}
+
+/* Amélioration du contraste pour le mode nuit */
+button, .btn, select, label {
+  background-color: #222 !important;
+  color: #fff !important;
+  border: 1px solid #444 !important;
+}
+
+button.active, .btn.active, button:focus, button:checked, .btn:focus, .btn:checked {
+  background-color: #fff !important;
+  color: #222 !important;
+  border-color: #888 !important;
+}
+
+option {
+  background: #222;
+  color: #fff;
+}
+
+/* Pour garantir la lisibilité des textes dans les inputs */
+input, textarea {
+  background: #222 !important;
+  color: #fff !important;
+  border: 1px solid #444 !important;
 }
