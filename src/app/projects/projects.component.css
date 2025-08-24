@@ -1,0 +1,100 @@
+/* Styles pour la grille de projets */
+.projects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+/* Styles pour les cartes de projet */
+.project-card {
+  background: white;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+
+.project-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  border-color: #6366f1;
+}
+
+/* Mode sombre pour les cartes */
+:host-context(.dark) .project-card {
+  background: #1f2937;
+  color: white;
+  border-color: #374151;
+}
+
+:host-context(.dark) .project-card:hover {
+  border-color: #6366f1;
+  background: #111827;
+}
+
+/* Titre des projets */
+.project-card h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  color: #1f2937;
+}
+
+:host-context(.dark) .project-card h3 {
+  color: white;
+}
+
+/* Description des projets */
+.project-card p {
+  color: #6b7280;
+  margin-bottom: 1rem;
+  line-height: 1.5;
+}
+
+:host-context(.dark) .project-card p {
+  color: #d1d5db;
+}
+
+/* Stack technologique */
+.tech-stack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.tech-tag {
+  background: #e0e7ff;
+  color: #3730a3;
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  border: 1px solid #c7d2fe;
+}
+
+:host-context(.dark) .tech-tag {
+  background: #312e81;
+  color: #c7d2fe;
+  border-color: #4338ca;
+}
+
+/* Animation pour les tags */
+.tech-tag:hover {
+  transform: scale(1.05);
+  transition: transform 0.2s ease;
+}
+
+/* Responsivité */
+@media (max-width: 768px) {
+  .projects-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .project-card {
+    padding: 1rem;
+  }
+}

@@ -1,31 +1,47 @@
-<section class='py-12'>
-  <h2 class='text-3xl font-bold'>Projects</h2>
-  <p class="mt-4">Découvrez mes différents projets de développement, incluant des composants interactifs.</p>
-  
-  <div class="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-    <!-- Projet d'échecs -->
-    <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
-      <h3 class="text-xl font-semibold text-indigo-600 dark:text-indigo-400">Jeu d'échecs</h3>
-      <p class="mt-2 text-gray-600 dark:text-gray-300">Un jeu d'échecs interactif codé en Angular avec différents niveaux de difficulté.</p>
-      <button (click)="toggleChessGame()" class="mt-4 px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition-colors">
-        {{ showChess ? 'Cacher le jeu' : 'Afficher le jeu' }}
-      </button>
-    </div>
+<div class="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
+  <div class="max-w-6xl mx-auto px-4">
+    <h1 class="text-3xl font-bold text-center mb-8 text-gray-800 dark:text-white">Mes Projets</h1>
     
-    <!-- Autres projets (placeholders) -->
-    <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md opacity-50">
-      <h3 class="text-xl font-semibold">Projet en cours</h3>
-      <p class="mt-2 text-gray-600 dark:text-gray-300">Ce projet est actuellement en développement.</p>
-    </div>
+    <div class="projects-grid">
+      <div class="project-card">
+        <h3>Projet Web Angular</h3>
+        <p>Site web personnel développé avec Angular, TypeScript et Tailwind CSS.</p>
+        <div class="tech-stack">
+          <span class="tech-tag">Angular</span>
+          <span class="tech-tag">TypeScript</span>
+          <span class="tech-tag">Tailwind CSS</span>
+        </div>
+      </div>
 
-    <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md opacity-50">
-      <h3 class="text-xl font-semibold">À venir</h3>
-      <p class="mt-2 text-gray-600 dark:text-gray-300">Plus de projets seront ajoutés prochainement.</p>
+      <div class="project-card">
+        <h3>Application Mobile</h3>
+        <p>Application mobile développée avec React Native pour la gestion de tâches.</p>
+        <div class="tech-stack">
+          <span class="tech-tag">React Native</span>
+          <span class="tech-tag">JavaScript</span>
+          <span class="tech-tag">Firebase</span>
+        </div>
+      </div>
+
+      <div class="project-card">
+        <h3>API REST</h3>
+        <p>API REST développée avec Node.js et Express pour la gestion d'utilisateurs.</p>
+        <div class="tech-stack">
+          <span class="tech-tag">Node.js</span>
+          <span class="tech-tag">Express</span>
+          <span class="tech-tag">MongoDB</span>
+        </div>
+      </div>
+
+      <div class="project-card">
+        <h3>Dashboard Analytics</h3>
+        <p>Tableau de bord pour l'analyse de données avec des graphiques interactifs.</p>
+        <div class="tech-stack">
+          <span class="tech-tag">Vue.js</span>
+          <span class="tech-tag">Chart.js</span>
+          <span class="tech-tag">Python</span>
+        </div>
+      </div>
     </div>
   </div>
-  
-  <!-- Composant d'échecs conditionnellement affiché -->
-  <div *ngIf="showChess" class="mt-8 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
-    <app-echecs></app-echecs>
-  </div>
-</section>
+</div>
