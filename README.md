@@ -1,27 +1,42 @@
-# MonSite
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 14.1.0.
+# MonSite – Portfolio Personnel
 
-## Development server
+**MonSite** est un site portfolio personnel moderne développé avec Angular, présentant une interface responsive et un mode sombre.
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
 
-## Code scaffolding
+## Installation
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+1. Cloner le dépôt :
+   ```bash
+   git clone https://github.com/NicolasRichard44/mon-site.git
+   cd mon-site
+   ```
+2. Installer les dépendances :
+   ```bash
+   npm install
+   ```
+3. Lancer le serveur de développement :
+   ```bash
+   npm start
+   ```
+4. Accéder à l'application : [http://localhost:4200](http://localhost:4200)
 
-## Build
+## Structure du projet
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+- `src/app/header/` : composant de navigation
+- `src/app/hero/` : section d'accueil
+- `src/app/about/` : section à propos
+- `src/app/projects/` : portfolio de projets
+- `src/app/contact/` : formulaire de contact
+- `src/app/footer/` : pied de page
+- `src/app/theme-toggle/` : basculeur de thème
 
-## Running unit tests
+## Technologies
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+- Angular 20+
+- TypeScript
+- Tailwind CSS
 
-## Running end-to-end tests
+## Auteur
 
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
-
-## Further help
-
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+Nicolas Richard
