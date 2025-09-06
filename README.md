@@ -1,27 +1,72 @@
-# MonSite
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 14.1.0.
+# MonSite – Portfolio Personnel
 
-## Development server
+**MonSite** est un site portfolio personnel moderne développé avec Angular, présentant une interface responsive et un mode sombre.
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
 
-## Code scaffolding
+## Installation
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+### Développement local
 
-## Build
+1. Cloner le dépôt :
+   ```bash
+   git clone https://github.com/NicolasRichard44/mon-site.git
+   cd mon-site
+   ```
+2. Installer les dépendances :
+   ```bash
+   npm install
+   ```
+3. Lancer le serveur de développement :
+   ```bash
+   npm start
+   ```
+4. Accéder à l'application : [http://localhost:4200](http://localhost:4200)
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+### Déploiement avec Docker
 
-## Running unit tests
+#### Option 1 : Utiliser l'image pré-construite (recommandé)
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+```bash
+docker pull nicolasrichard44/mon-site:latest
+docker run -p 3000:3000 nicolasrichard44/mon-site:latest
+```
 
-## Running end-to-end tests
+#### Option 2 : Construire l'image localement
 
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+Le projet inclut un `Dockerfile` multi-étapes pour un déploiement en production :
 
-## Further help
+1. Construire l'image Docker :
+   ```bash
+   docker build -t mon-site .
+   ```
+2. Lancer le conteneur :
+   ```bash
+   docker run -p 3000:3000 mon-site
+   ```
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+Accéder à l'application : [http://localhost:3000](http://localhost:3000)
+
+L'image utilise :
+- **Étape de build** : Node.js 22 pour compiler l'application Angular
+- **Étape de production** : Nginx Alpine pour servir les fichiers statiques
+
+## Structure du projet
+
+- `src/app/header/` : composant de navigation
+- `src/app/hero/` : section d'accueil
+- `src/app/about/` : section à propos
+- `src/app/projects/` : portfolio de projets
+- `src/app/contact/` : formulaire de contact
+- `src/app/footer/` : pied de page
+- `src/app/theme-toggle/` : basculeur de thème
+
+## Technologies
+
+- Angular 20+
+- TypeScript
+- Tailwind CSS
+
+## Auteur
+
+Nicolas Richard
