@@ -15,12 +15,74 @@
   transition: all 0.3s ease;
   cursor: pointer;
   border: 1px solid transparent;
+  position: relative;
 }
 
 .project-card:hover {
   transform: translateY(-4px);
   box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
   border-color: #6366f1;
+}
+
+/* Styles pour les projets terminés */
+.project-card.completed {
+  opacity: 1;
+}
+
+.project-card.completed:hover {
+  border-color: #10b981;
+}
+
+/* Styles pour les projets en cours */
+.project-card.work-in-progress {
+  opacity: 0.6;
+  filter: grayscale(50%);
+  cursor: default;
+  position: relative;
+}
+
+.project-card.work-in-progress:hover {
+  transform: none;
+  border-color: #9ca3af;
+  filter: grayscale(30%);
+}
+
+.project-card.work-in-progress::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 10px,
+    rgba(156, 163, 175, 0.1) 10px,
+    rgba(156, 163, 175, 0.1) 20px
+  );
+  border-radius: 0.75rem;
+  pointer-events: none;
+}
+
+/* Header du projet */
+.project-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.75rem;
+}
+
+/* Badge de statut */
+.status-badge {
+  background: #fbbf24;
+  color: #92400e;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.375rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 /* Mode sombre pour les cartes */
@@ -35,12 +97,25 @@
   background: #111827;
 }
 
+:host-context(.dark) .project-card.completed:hover {
+  border-color: #10b981;
+}
+
+:host-context(.dark) .project-card.work-in-progress:hover {
+  border-color: #6b7280;
+}
+
+:host-context(.dark) .status-badge {
+  background: #d97706;
+  color: #fbbf24;
+}
+
 /* Titre des projets */
 .project-card h3 {
   font-size: 1.25rem;
   font-weight: 600;
-  margin-bottom: 0.75rem;
   color: #1f2937;
+  margin: 0;
 }
 
 :host-context(.dark) .project-card h3 {
@@ -63,6 +138,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
+  margin-bottom: 1rem;
 }
 
 .tech-tag {
@@ -81,6 +157,73 @@
   border-color: #4338ca;
 }
 
+.project-card.work-in-progress .tech-tag {
+  opacity: 0.7;
+}
+
+/* Actions des projets */
+.project-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.action-button {
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  cursor: pointer;
+}
+
+.action-button.primary {
+  background: #6366f1;
+  color: white;
+}
+
+.action-button.primary:hover {
+  background: #5b21b6;
+  transform: translateY(-1px);
+}
+
+.action-button.secondary {
+  background: #f3f4f6;
+  color: #374151;
+  border: 1px solid #d1d5db;
+}
+
+.action-button.secondary:hover {
+  background: #e5e7eb;
+  transform: translateY(-1px);
+}
+
+.action-button.disabled {
+  background: #e5e7eb;
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+
+:host-context(.dark) .action-button.secondary {
+  background: #374151;
+  color: #d1d5db;
+  border-color: #4b5563;
+}
+
+:host-context(.dark) .action-button.secondary:hover {
+  background: #4b5563;
+}
+
+:host-context(.dark) .action-button.disabled {
+  background: #374151;
+  color: #6b7280;
+}
+
 /* Animation pour les tags */
 .tech-tag:hover {
   transform: scale(1.05);
@@ -96,5 +239,14 @@
   
   .project-card {
     padding: 1rem;
+  }
+  
+  .project-header {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .project-actions {
+    flex-direction: column;
   }
 }

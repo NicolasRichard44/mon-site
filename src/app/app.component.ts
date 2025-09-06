@@ -6,7 +6,6 @@ import { HeaderComponent } from './header/header.component';
 import { HeroComponent } from './hero/hero.component';
 import { ProjectsComponent } from './projects/projects.component';
 import { ThemeToggleComponent } from './theme-toggle/theme-toggle.component';
-import { ExternalLibsModule } from './shared/external-libs.module';
 
 
 
@@ -21,7 +20,6 @@ import { ExternalLibsModule } from './shared/external-libs.module';
     ContactComponent,
     FooterComponent,
     ThemeToggleComponent,
-    ExternalLibsModule,
   ],
   templateUrl: './app.component.html'
 })
