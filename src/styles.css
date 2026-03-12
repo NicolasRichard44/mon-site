@@ -1,6 +1,10 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #3b82f6;
+}
+
+@variant dark (&:where(.dark, .dark *));
 
 @layer components {
 
