@@ -24,7 +24,7 @@
     "@angular/build": "^21.0.0",
     "@angular/cli": "~21.2.0",
     "@angular/compiler-cli": "^21.0.0",
-    "@types/jasmine": "~5.1.0",
+    "@types/jasmine": "~6.0.0",
     "autoprefixer": "^10.4.21",
     "jasmine-core": "~6.1.0",
     "karma": "~6.4.0",
