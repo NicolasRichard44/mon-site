@@ -53,7 +53,7 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
       - name: Cache Angular and node_modules
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             .angular/cache
