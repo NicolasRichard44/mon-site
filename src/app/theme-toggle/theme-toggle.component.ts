@@ -23,6 +23,10 @@ export class ThemeToggleComponent implements OnInit {
 
   updateThemeClass(): void {
     const html = document.documentElement;
-    this.isDarkMode() ? html.classList.add('dark') : html.classList.remove('dark');
+    if (this.isDarkMode()) {
+      html.classList.add('dark');
+    } else {
+      html.classList.remove('dark');
+    }
   }
 }
