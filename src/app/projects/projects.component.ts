@@ -1,19 +1,18 @@
 import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { NgClass } from '@angular/common';
 
 @Component({
   selector: 'app-projects',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [NgClass],
   templateUrl: './projects.component.html',
-  styleUrls: ['./projects.component.css']
+  styleUrl: './projects.component.css'
 })
 export class ProjectsComponent {
   projects = [
     {
       title: 'Site Web Angular',
-      description: 'Portfolio personnel développé avec Angular 20, TailwindCSS et TypeScript. Architecture moderne avec composants standalone.',
+      description: 'Portfolio personnel développé avec Angular 21, TailwindCSS et TypeScript. Architecture moderne avec composants standalone.',
       technologies: ['Angular', 'TypeScript', 'TailwindCSS'],
       status: 'completed',
       link: '#',

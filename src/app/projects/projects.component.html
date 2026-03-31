@@ -3,50 +3,59 @@
     <h1 class="text-3xl font-bold text-center mb-8 text-gray-800 dark:text-white">Mes Projets</h1>
     
     <div class="projects-grid">
-      <div *ngFor="let project of projects" 
-           class="project-card"
-           [ngClass]="{
-             'work-in-progress': project.status === 'work-in-progress',
-             'completed': project.status === 'completed'
-           }">
-        
-        <div class="project-header">
-          <h3>{{ project.title }}</h3>
-          <span *ngIf="project.status === 'work-in-progress'" 
-                class="status-badge">
-            Work in Progress
-          </span>
+      @for (project of projects; track project.title) {
+        <div class="project-card"
+             [ngClass]="{
+               'work-in-progress': project.status === 'work-in-progress',
+               'completed': project.status === 'completed'
+             }">
+          
+          <div class="project-header">
+            <h3>{{ project.title }}</h3>
+            @if (project.status === 'work-in-progress') {
+              <span class="status-badge">
+                Work in Progress
+              </span>
+            }
+          </div>
+          
+          <p>{{ project.description }}</p>
+          
+          <div class="tech-stack">
+            @for (tech of project.technologies; track tech) {
+              <span class="tech-tag">
+                {{ tech }}
+              </span>
+            }
+          </div>
+          
+          @if (project.status === 'completed') {
+            <div class="project-actions">
+              @if (project.link) {
+                <a [href]="project.link"
+                   class="action-button primary">
+                  Voir le projet
+                </a>
+              }
+              @if (project.github) {
+                <a [href]="project.github"
+                   target="_blank"
+                   class="action-button secondary">
+                  GitHub
+                </a>
+              }
+            </div>
+          }
+          
+          @if (project.status === 'work-in-progress') {
+            <div class="project-actions">
+              <button class="action-button disabled" disabled>
+                En développement...
+              </button>
+            </div>
+          }
         </div>
-        
-        <p>{{ project.description }}</p>
-        
-        <div class="tech-stack">
-          <span *ngFor="let tech of project.technologies" 
-                class="tech-tag">
-            {{ tech }}
-          </span>
-        </div>
-        
-        <div class="project-actions" *ngIf="project.status === 'completed'">
-          <a *ngIf="project.link" 
-             [href]="project.link" 
-             class="action-button primary">
-            Voir le projet
-          </a>
-          <a *ngIf="project.github" 
-             [href]="project.github" 
-             target="_blank"
-             class="action-button secondary">
-            GitHub
-          </a>
-        </div>
-        
-        <div class="project-actions" *ngIf="project.status === 'work-in-progress'">
-          <button class="action-button disabled" disabled>
-            En développement...
-          </button>
-        </div>
-      </div>
+      }
     </div>
   </div>
 </div>
