@@ -1,5 +1,5 @@
 # Étape de build
-FROM node:24 AS build
+FROM node:26 AS build
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
